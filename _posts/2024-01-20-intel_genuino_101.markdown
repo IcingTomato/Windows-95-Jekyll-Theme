@@ -232,7 +232,7 @@ void loop()
 }
 ```
 
-<img src="http://icing.fun/img/post/2024/01/20/3.gif" width="200">
+<img src="http://icing.fun/img/post/2024/01/20/3.gif" width="50%">
 
 # 后记
 
