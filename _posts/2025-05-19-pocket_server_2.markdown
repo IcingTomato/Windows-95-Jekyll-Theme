@@ -151,6 +151,34 @@ sudo systemctl disable dnsmasq
 sudo systemctl enable --now dnsmasq-usb0.service
 ```
 
+## 设置 Swap
+
+```bash
+sudo fallocate -l 512M /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+```
+
+设置开机自动挂载：
+
+```bash
+sudo nano /etc/fstab
+```
+
+添加以下内容：
+
+```bash
+/swapfile none swap sw 0 0
+```
+
+可以直接用命令开启 swap：
+
+```bash
+sudo swapon /swapfile
+```
+
 当然，也可以重启树莓派。
+
+## 结语
 
 基本上每次等能连接差不多要1~2分钟，正好在猩八课插上电脑再去拿个咖啡回来就能干活了。
