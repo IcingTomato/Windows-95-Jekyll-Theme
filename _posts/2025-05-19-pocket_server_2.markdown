@@ -153,6 +153,8 @@ sudo systemctl enable --now dnsmasq-usb0.service
 
 ## 设置 Swap
 
+老样子，内存不够，硬盘来凑。
+
 ```bash
 sudo fallocate -l 512M /swapfile
 sudo chmod 600 /swapfile
@@ -182,3 +184,112 @@ sudo swapon /swapfile
 ## 结语
 
 基本上每次等能连接差不多要1~2分钟，正好在猩八课插上电脑再去拿个咖啡回来就能干活了。
+
+## 番外
+
+可以通过删除一些不需要的 Ubuntu 服务器实例来清理 软件包和禁用服务。这样可以节省一些磁盘空间并释放内存。
+
+```bash
+sudo apt purge --auto-remove snapd squashfs-tools friendly-recovery apport at
+```
+
+删除无人值守升级
+
+```bash
+sudo apt purge --auto-remove unattended-upgrades
+sudo systemctl disable apt-daily-upgrade.timer
+sudo systemctl mask apt-daily-upgrade.service
+sudo systemctl disable apt-daily.timer
+sudo systemctl mask apt-daily.service
+```
+
+这将删除 `unattended-upgrades` 软件包和负责自动更新的关联服务软件包。
+
+但是有些环境不能这样，可以配置 `unattended-upgrades` 以仅安装安全性更新。
+
+通过注释 `unattended-upgrades` 的 apt 配置中的其他源来仅启用安全更新：
+
+```bash
+sudo nano /etc/apt/apt.conf.d/50unattended-upgrades
+```
+
+移除 Plymouth，我开机也不看那些花花绿绿的屏幕，直接铲了：
+
+```bash
+sudo apt purge --auto-remove plymouth
+```
+
+这个过程会非常长，可能需要 10 分钟或更长时间才能完成。（因为涉及到 `update-initramfs`）
+
+删除完之后还需要修改 `/boot/firmware/cmdline.txt` 文件，删除以下内容：
+
+```bash
+quiet splash
+```
+
+然后重启树莓派。
+
+## IP 转发
+
+晚上敲代码的时候突发奇想，这个能不能让来自 `usb0` 的流量转发到 `wlan0` 上呢？
+
+可以的，兄弟，可以的。
+
+首先通过编辑 `/etc/sysctl.conf` 文件来启用 IP 转发：
+
+```bash
+sudo nano /etc/sysctl.conf
+```
+
+在文件中找到以下行（找不到没关系，直接追加）：
+
+```bash
+#net.ipv4.ip_forward=1
+```
+
+取消注释并将其更改为：
+
+```bash
+net.ipv4.ip_forward=1
+```
+
+保存后，执行以下命令：
+
+```bash
+sudo sysctl -p
+```
+
+或者立即生效：
+
+```bash
+sudo sysctl -w net.ipv4.ip_forward=1
+```
+
+接下来，使用 `iptables` 来设置 NAT 转发：
+
+```bash
+# 让 usb0 的流量通过 wlan0 出口转发
+sudo iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
+
+# 允许 usb0 转发出去
+sudo iptables -A FORWARD -i usb0 -o wlan0 -j ACCEPT
+sudo iptables -A FORWARD -i wlan0 -o usb0 -m state --state ESTABLISHED,RELATED -j ACCEPT
+```
+
+最后，保存 `iptables` 规则，防止重启后规则丢失：
+
+```bash
+sudo apt install iptables-persistent
+sudo netfilter-persistent save
+```
+
+整体流程如下：
+
+```css
+[电脑] --usb0--> [树莓派:192.168.100.2] --wlan0--> [Wi-Fi 路由器] --Internet
+            ↕
+         dnsmasq 发 IP（192.168.100.x）
+         iptables 转发
+```
+
+（邪魅一笑）这样不就能在树莓派上面部署，咳咳，嗯。
