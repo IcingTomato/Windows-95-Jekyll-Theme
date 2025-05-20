@@ -274,6 +274,18 @@ arm_freq=700
 
 参见[【服务器维护】时隔425天的一次维护记录 - 冰冰番茄的归档](https://icing.fun/2025/05/12/server_maintain/#title3)。
 
+也可以将清理脚本 `clear_cache` 放在 `/usr/local/bin` 目录下，确保权限 `+x`，然后添加到 `/etc/cron.d` 中：
+
+```bash
+sudo nano /etc/cron.d/clear_cache
+```
+
+在 `/etc/cron.d/clear_cache` 中添加以下内容：
+
+```bash
+*/10 * * * * root /usr/local/bin/clear_cache
+```
+
 ## 连接家里的 NAS
 
 可以参考[此处](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/7/html/storage_administration_guide/mounting_an_smb_share#unix_extensions_support)。
