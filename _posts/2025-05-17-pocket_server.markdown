@@ -273,3 +273,27 @@ arm_freq=700
 ## 定时清除 buff/cache
 
 参见[【服务器维护】时隔425天的一次维护记录 - 冰冰番茄的归档](https://icing.fun/2025/05/12/server_maintain/#title3)。
+
+## 连接家里的 NAS
+
+可以参考[此处](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/7/html/storage_administration_guide/mounting_an_smb_share#unix_extensions_support)。
+
+先安装必要组件：
+
+```bash
+sudo apt install cifs-utils
+```
+
+然后直接挂载：
+
+```bash
+mount -t cifs -o vers=1.0,username=user_name //server_name/share_name /mnt/
+```
+
+如果需要密码，可以使用 `-o password=your_password` 选项。
+
+卸载：
+
+```bash
+sudo umount /mnt/
+```
