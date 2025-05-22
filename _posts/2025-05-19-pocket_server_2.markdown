@@ -115,8 +115,8 @@ iface wlan0 inet dhcp
 ```bash
 interface=usb0
 dhcp-range=192.168.100.10,192.168.100.100,24h
-dhcp-option=3
-dhcp-option=6
+dhcp-option=3,192.168.100.2
+dhcp-option=6,223.5.5.5
 ```
 
 新建 systemd 服务文件等待 usb0 后再启动 dnsmasq
