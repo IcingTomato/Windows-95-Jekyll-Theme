@@ -43,7 +43,7 @@ tags: intel x86 zh-cn
 
 不过这款产品还是非常能打的，站在软件开发的角度来看，英特尔其实是想把在 CPU 端的开发经验带到嵌入式领域。毕竟到了2015年，英特尔在 CPU 领域已经有了几十年的积累，x86 架构的微控制器可以让开发者更容易地使用现有的 x86 工具链和软件库，从而降低了开发门槛。
 
-但是这样也有缺点，英特尔历史包袱太重，放不下庞大的PC/商用市场，或者说英特尔只是想在 Maker 社区和开源硬件社区赚一波快钱。这款产品从发布到生命周期结束，英特尔都没有好好对待。首先就是开发平台就只能使用 Intel System Studio for Microcontrollers，完全看不出英特尔的拥抱开源硬件的诚意（特别是 Arduino 授权，用 Arduino Uno 的 Pinout 但是不支持 Arduino IDE）。
+但是这样也有缺点，英特尔历史包袱太重，放不下庞大的PC/商用市场，或者说英特尔只是想在 Maker 社区和开源硬件社区赚一波快钱。这款产品从发布到生命周期结束，英特尔都没有好好对待。首先就是开发平台就只能使用 Intel System Studio for Microcontrollers，完全看不出英特尔拥抱开源硬件的诚意（特别是 Arduino 授权，用 Arduino Uno 的 Pinout 但是不支持 Arduino IDE）。
 
 反观 Nordic 和 Espressif 的产品，Nordic 的 nRF 系列和 Espressif 的 ESP 系列都提供了丰富的开源支持和社区资源，尤其是 Arduino，开发者可以轻松上手（Arduino 确实是为打破壁垒做出巨大贡献，让很多非电子专业的人们可以快速开发自己想要的东西）。而英特尔的 Quark D2000 开发板在这方面就显得将这些需求置若罔闻。
 
@@ -135,6 +135,14 @@ Quark D2000 Dev Platform的一些官方和三方链接我贴在此处：
      qm_pmux_select(QM_PIN_ID_13, QM_PMUX_FN_2);
      qm_pmux_input_en(QM_PIN_ID_13, true);
 ```
+
+<img src="http://icing.fun/img/post/2025/06/01/quark-d2000-crb-schematics_page-0006.jpg" alt="pinmap" width="50%">
+<img src="http://icing.fun/img/post/2025/06/01/quark-d2000-crb-schematics_page-0007.jpg" alt="pinmap" width="50%">
+<img src="http://icing.fun/img/post/2025/06/01/quark-d2000-crb-schematics_page-0008.jpg" alt="pinmap" width="50%">
+<img src="http://icing.fun/img/post/2025/06/01/quark-d2000-crb-schematics_page-0009.jpg" alt="pinmap" width="50%">
+<img src="http://icing.fun/img/post/2025/06/01/quark-d2000-crb-schematics_page-0010.jpg" alt="pinmap" width="50%">
+<img src="http://icing.fun/img/post/2025/06/01/quark-d2000-crb-schematics_page-0011.jpg" alt="pinmap" width="50%">
+<img src="http://icing.fun/img/post/2025/06/01/quark-d2000-crb-schematics_page-0012.jpg" alt="pinmap" width="50%">
 
 那么你现在可能有疑问：IDE 都没有了，还有编译环境吗？有的，兄弟，有的。我们自己手动编译 IAMCU i586 的工具链。
 
@@ -276,259 +284,147 @@ make TARGET=x86 SOC=quark_d2000 V=1
 
 非常幸运的是，这个板子自带 `FTDI FT232HL` USB 转串口芯片，所以我们可以直接使用 `OpenOCD` 来烧录。
 
-```bash
-sudo apt install openocd
-```
+首先，如果你用的是 `Windows` 系统，需要下载 [Zadig](https://zadig.akeo.ie/) 工具，将 `FT232HL` 的驱动安装为 `WinUSB`。如果你用的是 `Linux` 系统，通常不需要额外安装驱动。
 
-准备一下适用于 Quark D2000 的配置文件：
+我们需要下载英特尔提供的 `OpenOCD` 副本。点击[此处](https://github.com/intel/OpenOCD/releases/tag/0.9-0.1)下载对应操作系统的版本。解压后，进入 `scripts` 目录。
 
-```bash
-## quark_d2000.cfg
-# Quark D2000 OpenOCD configuration file
-# scan_chain
-jtag newtap quark_d2000 lmt    -irlen 8  -irmask 0xff  -expected-id   0x38289013  -disable
-jtag newtap quark_d2000 cltap  -irlen 8  -irmask 0xff  -expected-id   0x0e786013  -enable
+接着从 [Intel/OpenOCD](https://github.com/intel/OpenOCD) 仓库中，定位到 [`tcl/board/`](https://github.com/intel/OpenOCD/tree/master/tcl/board) 目录，找到 [`quark_d2000.cfg`](https://github.com/intel/OpenOCD/blob/master/tcl/board/quark_d2000.cfg) 和 [`quark_d2000_onboard.cfg`](https://github.com/intel/OpenOCD/blob/master/tcl/board/quark_d2000_onboard.cfg) 两个文件，下载到 `$Intel_OpenOCD/scripts/board/` 目录下。然后定位到 [`tcl/target/`](https://github.com/intel/OpenOCD/tree/master/tcl/target) 目录，找到 [`quark_d2000.cfg`](https://github.com/intel/OpenOCD/blob/master/tcl/target/quark_d2000.cfg) 文件，下载到 `$Intel_OpenOCD/scripts/target/` 目录下。
 
-# targets
-target create lmt.cpu quark_d20xx -endian little -chain-position quark_d2000.lmt
+现在我们通过命令行/终端进入到 OpenOCD 的 `bin` 目录下。
 
-lmt.cpu configure -event gdb-attach { halt }
+我们还需要下载 Quark D2000 的 Bootloader。点击[此处](https://github.com/quark-mcu/qm-bootloader/releases/tag/v1.3.0)下载 1.3.0 版本的 Bootloader。
 
-# openocd puts tap at front of chain not end of chain
-# to enable the lmt core we need to set bits [1:0] to 0x1
-proc quark_d2000_lmt_tapenable {} {
-        echo "Enabling lmt core tap"
-        set val [ eval { irscan quark_d2000.cltap 0x11 ; drscan quark_d2000.cltap 12 0 } ]
-        set val [ format 0x%x [ expr ( ( 0x$val & 0xffc ) | 0x01 ) ] ]
-        irscan quark_d2000.cltap 0x11
-        drscan quark_d2000.cltap 12 $val
-        runtest 10
-}
-
-# to disable the lmt core we need to set bits [1:0] to 0x0
-proc quark_d2000_lmt_tapdisable {} {
-        echo "Disabling lmt core tap"
-        set val [ eval { irscan quark_d2000.cltap 0x11 ; drscan quark_d2000.cltap 12 0 } ]
-        set val [ format 0x%x [ expr ( 0x$val & 0xffc ) ] ]
-        irscan quark_d2000.cltap 0x11
-        drscan quark_d2000.cltap 12 $val
-        runtest 10
-}
-
-proc quark_d2000_setup {} {
-        jtag tapenable quark_d2000.lmt
-}
-
-jtag configure quark_d2000.lmt -event tap-enable "quark_d2000_lmt_tapenable"
-jtag configure quark_d2000.lmt -event tap-disable "quark_d2000_lmt_tapdisable"
-
-jtag configure quark_d2000.cltap -event setup "quark_d2000_setup"
-
-#default frequency but this can be adjusted at runtime
-adapter_khz 1000
-
-reset_config trst_only
-
-## Utility functions
-
-# utility functions to delete OTPD and FLASH
-proc del_flash0 {} { mww 0xB0100018 0x80 ; sleep 2000 ; mdw 0xB0100014 }
-# utility function to delete OTPC, OTPD and FLASH
-proc mass_erase {} {
- if { [ info exists ::QUARK_D2000_OTPC_DATA_WRITE_ENABLED ] &&
-    [ expr $::QUARK_D2000_OTPC_DATA_WRITE_ENABLED ] } then {
-        echo "Deleting  OTPC, OTPD and FLASH regions"
-        mww 0xB0100018 0xC0 ; sleep 2000 ; mdw 0xB0100014
- } else {
-        echo "No operation was performed"
-        echo "mass_erase command deletes also the OTPC DATA protected region, but this behavior is disabled by default."
-        echo "The following command will allow it: set QUARK_D2000_OTPC_DATA_WRITE_ENABLED 1"
-        echo "To mass erase only the OTPD and FLASH regions use the 'del_flash0' command instead."
- }
-}
-
-# utility function to set SoC clock to 32MHz Si
-proc clk32M { {jtag_khz 1000} } {
-        # slow speed to make sure we can write mem
-        adapter_khz 3
-        # LMT halt
-        irscan quark_d2000.cltap 0x70 ; drscan quark_d2000.cltap 8 0x1
-        # set the SoC clock to the 32 MHz Silicon one
-        mww 0xB0800008 0x2
-        mww 0xB0800038 0x7
-        mww 0xB0800038 0x87
-        # set the JTAG clock to the desired one
-        adapter_khz $jtag_khz
-        # clear halt flag and reset the SoC
-        irscan quark_d2000.cltap 0x70 ; drscan quark_d2000.cltap 8 0x0
-        reset halt
-}
-
-# utility function to recover JTAG
-# delay parameter is critical to stop the FW as soon as possible, the value
-# varies from board to board, typical values are between 114 and 130 ms
-proc jtag_recovery { {delay_ms 117} } {
-        # disable polling, it'll just get in the way
-        poll off
-
-        # disable the lmt tap if not disabled already
-        if { [jtag tapisenabled quark_d2000.lmt] } then { jtag tapdisable quark_d2000.lmt }
-
-        # trigger a reset
-        ftdi_set_signal nSRST 1
-        sleep 500
-        ftdi_set_signal nSRST 0
-
-        # here we should wait 4 uS after reset is deasserted and reaches a logic 1
-        # to have the tap available, but the reset needs some time to reach that
-        # level as there are capacitances involved.
-        # even if we switched the reset pin back to input we couldn't poll it fast
-        # enough to get the right timing, so we need to measure experimentally the
-        # rise time and determine the right openocd delay.
-        #
-        # granularity on the tcl command line in openocd is 1 ms.
-        # if this is too coarse add a specific reset and delay command in C.
-        sleep $delay_ms
-
-        # re-initialize the jtag scanchain
-        jtag arp_init
-
-        # assert vpreq (it's cleared on reset)
-        irscan quark_d2000.cltap 0x70 ; drscan quark_d2000.cltap 8 0x3
-
-        # wait until we actually stop, we should actually poll vprdy but if we did
-        # not stop after another 500 ms something went terribly wrong and polling
-        # wouldn't help anyway
-        sleep 500
-
-        # re-initialize the jtag scanchain
-        jtag arp_init
-
-        # enable polling again
-        poll on
-}
-
-# utility function to flash ROM
-proc flash_rom { rom_file { address 0x0 } } {
-        init
-        echo "Setup clock"
-        clk32M
-        echo "Start flash"
-        load_image $rom_file $address
-        echo "Start verify"
-        verify_image_offset $rom_file $address 0x150
-        echo "Reset target"
-        reset halt
-        echo "All done"
-}
-
-## quark_d2000_onboard.cfg
-## Quark D2000 Customer Reference Board
-
-## Onboard FT232H Configuration
-interface ftdi
-ftdi_vid_pid 0x0403 0x6014
-ftdi_channel 0
-
-ftdi_layout_init 0x0000 0x030b
-ftdi_layout_signal nTRST -data 0x0100 -noe 0x0100
-ftdi_layout_signal nSRST -data 0x0200 -oe 0x0200
-
-source [find ./quark_d2000.cfg]
-
-# default frequency but this can be adjusted at runtime
-adapter_khz 1000
-
-reset_config trst_only
-```
-
-将两个配置文件保存为 `quark_d2000.cfg` 和 `quark_d2000_onboard.cfg`。尝试一下能否连接到设备：
+因为我准备在 Windows 上刷板子，所以还需要使用 `scp` 命令将 `blinky.bin` 复制到 OpenOCD 的 `bin` 目录下。
 
 ```bash
-ls /dev/ttyUSB*
-openocd -f quark_d2000_onboard.cfg
+scp.exe tomato@192.168.56.108:/home/tomato/qmsi/examples/blink/release/quark_d2000/x86/bin/blinky.bin ./blinky.bin
 ```
 
-如果一切正常，你应该能看到 OpenOCD 成功连接到 Quark D2000 开发板。
+我们现在就可以通过 OpenOCD 来烧录了。
 
 ```bash
-Open On-Chip Debugger 0.10.0
-Licensed under GNU GPL v2
-For bug reports, read
-        http://openocd.org/doc/doxygen/bugs.html
-Info : auto-selecting first available session transport "jtag". To override use 'transport select <transport>'.
-adapter speed: 1000 kHz
-trst_only separate trst_push_pull
-adapter speed: 1000 kHz
-trst_only separate trst_push_pull
-Info : clock speed 1000 kHz
-Info : JTAG tap: quark_d2000.cltap tap/device found: 0x0e786013 (mfg: 0x009 (Intel), part: 0xe786, ver: 0x0)
-Enabling lmt core tap
-Info : JTAG tap: quark_d2000.lmt enabled
+.\openocd.exe -f ..\scripts\board\quark_d2000_onboard.cfg -c "flash_rom quark_d2000_rom.bin 0"
+.\openocd.exe -f ..\scripts\board\quark_d2000_onboard.cfg -c "flash_rom blinky.bin 0x00180000"
 ```
 
-也可以试试使用 `telnet` 连接到 OpenOCD：
+如果是 Linux 系统，可以参考[此处](https://www.mouser.com/pdfdocs/system-studio-getting-started-guide.pdf)第24页，命令类似：
 
 ```bash
-telnet localhost 4444
+./openocd -f ../scripts/board/quark_d2000_onboard.cfg -c "init" -c "flash_rom quark_d2000_rom.bin" -c "shutdown"
 ```
 
-尝试用 `halt` 命令暂停 CPU：
+在看到 `All done`的时候按下复位键，蓝色的 `USR` LED 会每隔 0.25s 闪烁一下，表示烧录成功。
+
+<img src="http://icing.fun/img/post/2025/06/01/quark_d2000.gif" alt="d2000" width="50%">
+
+### 配置 Zephyr RTOS
+
+(2025-06-02 更新)
+
+Zephyr RTOS 是一个开源的实时操作系统，支持多种硬件平台，包括 Intel Quark D2000。我们可以使用 Zephyr 来开发更复杂的应用。
+
+但是我们不能用最新的 Zephyr 版本，因为 Quark D2000 的支持在 Zephyr 2.0 之后被移除。我们需要使用 Zephyr 1.14.0 版本 和 SDK 0.10.0 版本。
+
+#### 环境准备
+
+回到 Ubuntu Server 18.04.6 LTS 环境，安装 Zephyr 所需的依赖：
 
 ```bash
-tomato@shit:~/qmsi/examples/blink$ telnet localhost 4444
-Trying 127.0.0.1...
-Connected to localhost.
-Escape character is '^]'.
-Open On-Chip Debugger
-> halt
-target halted due to debug-request at 0x0000ffff in real mode
+sudo apt-get update
+sudo apt-get install --no-install-recommends git cmake ninja-build gperf \
+  ccache dfu-util device-tree-compiler wget \
+  python3-pip python3-setuptools python3-wheel xz-utils file make gcc \
+  gcc-multilib
 ```
 
-如果一切正常，就可以使用 `gdb` 来烧录程序了。
+Zephyr 需要CMake 版本 3.13.1 或更高版本。但是 Ubuntu 18.04 默认的 CMake 版本是 `3.10.2`，我们需要手动安装最新版本的 CMake：
 
 ```bash
-sudo apt install gdb
+sudo apt purge cmake
+python3 -m pip install --upgrade pip
+python3 -m pip install scikit-build==0.14.0
+python3 -m pip install cmake
 ```
 
-在一个终端窗口中运行 OpenOCD：
+安装完之后可能会遇到 `WARNING: The scripts cmake, cpack and ctest are installed in '/home/tomato/.local/bin' which is not on PATH.` 的警告。我们需要将其添加到 PATH 中：
 
 ```bash
-openocd -f quark_d2000_onboard.cfg
+export PATH="$HOME/.local/bin:$PATH"
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
 ```
 
-此时创建一个新的终端会话并相应地设置环境变量。 然后使用以下命令启动 GDB 会话：
+最后我们需要安装 安装 Zephyr 软件开发工具包 （SDK）：
 
 ```bash
-gdb
+wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.10.0/zephyr-sdk-0.10.0-setup.run
+cd <sdk download directory>
+sh zephyr-sdk-0.10.0-setup.run
 ```
 
-要连接到远程端口，请输入以下 GDB 命令：
+导出 Zephyr SDK 的环境变量，默认位置在 `/opt/zephyr-sdk/`：
 
 ```bash
-(gdb) target remote :3333
+export ZEPHYR_TOOLCHAIN_VARIANT=zephyr
+export ZEPHYR_SDK_INSTALL_DIR=<sdk installation directory>
 ```
 
-使用以下命令将 ROM 和应用程序烧录到器件中：
+#### 下载 Zephyr 源码
+
+使用 Bootstrap West 工具来下载 Zephyr 源码：
 
 ```bash
-(gdb) monitor load_image $PATH_TO_QM_BOOTLOADER/build/release/quark_d2000/rom/quark_d2000_rom.bin 0x0
-(gdb) monitor load_image $PATH_TO_QMSI/examples/hello_world/release/quark_d2000/x86/bin/hello_world.bin 0x00180000
-(gdb) monitor reset halt
+python3 -m pip install west
 ```
 
-到这里你以为一切都结束了？不，兄弟，这才刚刚开始。
+我们需要指定 Zephyr 的版本为 1.14.0：
 
-这程序根本跑不起来。
+```bash
+west init zephyrproject --mr v1.14.0
+cd zephyrproject
+west update
+```
 
-最大的原因还是因为工具链的问题，我们自制的工具链虽然可以编译，但是没有办法让编译出来的文件在 Quark D2000 上运行。（后续原因我会慢慢找一下）
+#### 安装 Python 依赖项
+
+Zephyr 需要一些 Python 依赖项，我们可以使用 `pip` 来安装：
+
+```bash
+python3 -m pip install -r zephyr/scripts/requirements.txt
+```
+
+如果你在安装过程中遇到依赖项问题，可以把 `zephyr/scripts/requirements.txt` 中 `hub==2.0` 改成 `hub==2.0.9`。
+
+#### 构建应用程序
+
+导航到主项目目录：
+
+```bash
+cd zephyrproject/zephyr
+```
+
+设置环境：
+
+```bash
+source zephyr-env.sh
+```
+
+构建 `blinky` 示例应用程序：
+
+```bash
+cd samples/basic/blinky
+west build -b quark_d2000_crb .
+```
+
+构建完成后会在 `build/zephyr/zephyr.bin` 生成二进制文件。烧录方式和上面类似。烧录成功后按下复位键，蓝色的 `USR` LED 会每隔 1s 闪烁一下，表示烧录成功。
+
+## 完成
+
+至此，我们在失去官方工具链的情况下成功复活了这个板子。
 
 ## 引用
 
 1. <span id="jump1"><a href="https://www.intel.com/content/www/us/en/products/sku/91947/intel-quark-microcontroller-d2000/specifications.html">Intel® Quark™ Microcontroller D2000 - Intel</a></span>
-
 2. <span id="jump2"><a href="https://web.archive.org/web/20201205135803/https://www.theverge.com/2018/6/22/17492184/intel-future-ceo-brian-krzanich-resignation-2018">Warren, Tom. Intel now faces a fight for its future. The Verge. 2018-06-22 [2020-11-26]. （原始内容存档于2020-12-05） </a></span>
-
 3. <span id="jump3"><a href="https://linuxgizmos.com/who-killed-the-quark/">Who killed the Quark? by Eric Brown - LinuxGizmos.com</a></span>
-
 4. <span id="jump4"><a href="https://www.mouser.com/applications/Intel-Quark-Internet-of-Things-MCU/">The Intel Quark®™ Microcontroller: Why an x86 MCU is The Right Stuff for The Internet of Things, By Bill Giovino - Mouser Electornics</a></span>
