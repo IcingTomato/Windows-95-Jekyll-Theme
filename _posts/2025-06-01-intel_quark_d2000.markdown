@@ -418,6 +418,8 @@ west build -b quark_d2000_crb .
 
 构建完成后会在 `build/zephyr/zephyr.bin` 生成二进制文件。烧录方式和上面类似。烧录成功后按下复位键，蓝色的 `USR` LED 会每隔 1s 闪烁一下，表示烧录成功。
 
+可以参照[Zephyr 1.14.0 官方文档](https://docs.zephyrproject.org/1.14.0/getting_started/index.html#)来了解更多关于 Zephyr 的信息。
+
 ## 完成
 
 至此，我们在失去官方工具链的情况下成功复活了这个板子。
