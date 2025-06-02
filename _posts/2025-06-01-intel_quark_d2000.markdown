@@ -296,13 +296,13 @@ make TARGET=x86 SOC=quark_d2000 V=1
 
 因为我准备在 Windows 上刷板子，所以还需要使用 `scp` 命令将 `blinky.bin` 复制到 OpenOCD 的 `bin` 目录下。
 
-```bash
+```powershell
 scp.exe tomato@192.168.56.108:/home/tomato/qmsi/examples/blink/release/quark_d2000/x86/bin/blinky.bin ./blinky.bin
 ```
 
 我们现在就可以通过 OpenOCD 来烧录了。
 
-```bash
+```powershell
 .\openocd.exe -f ..\scripts\board\quark_d2000_onboard.cfg -c "flash_rom quark_d2000_rom.bin 0"
 .\openocd.exe -f ..\scripts\board\quark_d2000_onboard.cfg -c "flash_rom blinky.bin 0x00180000"
 ```
@@ -314,6 +314,52 @@ scp.exe tomato@192.168.56.108:/home/tomato/qmsi/examples/blink/release/quark_d20
 ```
 
 在看到 `All done`的时候按下复位键，蓝色的 `USR` LED 会每隔 0.25s 闪烁一下，表示烧录成功。
+
+或者是配合 `gdb` 调试。先在 OpenOCD 的 `bin` 目录下执行：
+
+```powershell
+.\openocd.exe -f ..\scripts\board\quark_d2000_onboard.cfg
+```
+
+就会显示如下信息：
+
+```powershell
+Open On-Chip Debugger 0.8.0-dev-ga422c7e (2016-05-23-16:57)
+Licensed under GNU GPL v2
+For bug reports, read
+        http://openocd.sourceforge.net/doc/doxygen/bugs.html
+Info : only one transport option; autoselect 'jtag'
+adapter speed: 1000 kHz
+trst_only separate trst_push_pull
+adapter speed: 1000 kHz
+trst_only separate trst_push_pull
+Info : clock speed 1000 kHz
+Info : JTAG tap: quark_d2000.cltap tap/device found: 0x0e786013 (mfg: 0x009, part: 0xe786, ver: 0x0)
+Enabling lmt core tap
+Info : JTAG tap: quark_d2000.lmt enabled
+```
+
+接着打开另一个终端，执行：
+
+```powershell
+gbd
+```
+
+如果在 Windows 上运行前提是你得安装好 `MSYS2`。
+
+然后在 `gdb` 中输入：
+
+```powershell
+(gdb) target remote :3333
+```
+
+接着输入以下命令来烧录程序：
+
+```powershell
+(gdb) monitor reset halt
+(gdb) monitor load_image blinky.bin 0x00180000
+(gdb) monitor reset
+```
 
 <img src="http://icing.fun/img/post/2025/06/01/quark_d2000.gif" alt="d2000" width="50%">
 
