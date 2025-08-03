@@ -11,6 +11,7 @@ sticky: true
 - [`git push` 到两个地址的仓库](#title4)
 - [`Git` 不公开邮箱账户](#title5)
 - [`Git` 取消文件跟踪](#title6)
+- [`Git` 记住密码](#title7)
 
 ## <span id="title1">`Git` 初次设定</span>
 
@@ -86,3 +87,27 @@ git config user.email "xxxx@users.noreply.gitee.com"
 ## <span id="title6">`Git` 取消文件跟踪</span>
 
 参见[【Git】Git 取消文件跟踪](http://icing.fun/2025/05/02/git_rm/)
+
+## <span id="title7">`Git` 记住密码</span>
+
+在使用 `git push` 时，可能会遇到需要输入用户名和密码的情况。为了避免每次都输入，可以使用以下命令来记住密码：
+
+```shell
+git config --global credential.helper store
+```
+
+这将会在本地存储你的 Git 凭据，之后在推送时就不需要再次输入用户名和密码了。
+如果你希望在每次推送时都输入密码，可以使用以下命令：
+
+```shell
+git config --global credential.helper cache
+```
+
+这将会在内存中缓存你的凭据，默认缓存时间为 15 分钟。
+如果你希望更改缓存时间，可以使用以下命令：
+
+```shell
+git config --global credential.helper 'cache --timeout=3600'
+```
+
+这将会将缓存时间设置为 1 小时（3600 秒）。
