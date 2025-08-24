@@ -1,6 +1,6 @@
 ---
 layout: default
-title:  "【奇技淫巧】VSCode 远程登录树莓派并免密登录"
+title:  "【玩转树莓派】VSCode 远程登录树莓派并免密登录"
 tags: raspberrypi vscode zh-cn
 published: true
 ---
