@@ -1,6 +1,6 @@
 ---
 layout: default
-title:  "【阅板无数】Raspberry Pi CM5 的 OpenWRT 体验"
+title:  "【阅板无数】Raspberry Pi CM5 和 Zero 2 W 的 OpenWRT 体验"
 tags: raspberrypi arm zh-cn
 published: false
 ---

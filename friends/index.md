@@ -18,8 +18,9 @@ title: Friends & Links
     <li><s><a href="https://blog.lkzstudio.com/">烂裤子小站</a></s> <a href="https://rotcool.me/">烂裤子の小站</a></li>
     <li><s><a href="http://150.158.159.239/">有点暖的凍雨 | Freezing Rain Blog</a></s></li>
     <li><a href="https://steward-fu.github.io/website/index.htm">司徒的教學網站</a></li>
-    <li><a href="https://jsutite.github.io/">江苏理工学院网络协会-GitHub托管</a></li>
+    <li><s><a href="https://jsutite.github.io/">江苏理工学院网络协会-GitHub托管</a></s> <a href="https://web.archive.org/web/20230505041100/https://jsutite.github.io/">江苏理工学院网络协会-GitHub托管-Internet Archive</a></li>
     <li><a href="https://guokm.cn/">懒猫爱伸腰</a></li><!--郭克明-->
     <li><a href="https://www.cncalc.org/">cnCalc计算器论坛</a></li>
     <li><a href="https://www.compumuseum.com/special.html">网页里的电脑博物馆</a></li>
+    <li><a href="https://alchitry.com/tutorials/">Alchitry FPGA Tutorials</a></li>
 </ul>
