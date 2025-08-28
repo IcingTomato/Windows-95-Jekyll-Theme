@@ -8,7 +8,7 @@ title: About
 {% assign shit_years = shit_days | divided_by: 365.0 | round %}
 
 <div style="text-align: center;">
-  <img src="http://icing.fun/img/about/about.png" alt="quietly brilliant" />
+  <img src="http://icing.fun/img/about/about.png" alt="quietly brilliant" style="width: 50%;" />
 </div>
 
 ## 关于我
