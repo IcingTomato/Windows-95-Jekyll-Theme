@@ -7,6 +7,10 @@ title: About
 {% assign shit_days = seconds_since_graduate | divided_by: 86400 %}
 {% assign shit_years = shit_days | divided_by: 365.0 | round %}
 
+<div style="text-align: center;">
+  <img src="http://icing.fun/img/about/about.png" alt="quietly brilliant" />
+</div>
+
 ## 关于我
 
 一无名小卒，本科毕业差不多{{ shit_years }}年，呼号**BD7PLV**。闲赋在家时喜欢折腾赛博垃圾，遂建次博客，记录点滴心得。
