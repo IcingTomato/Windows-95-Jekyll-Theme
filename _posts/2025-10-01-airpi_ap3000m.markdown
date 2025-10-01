@@ -71,7 +71,7 @@ AT+CFUN=1,1 # 重启模组
 
 就可以上网了。
 
-也可以养小猫咪：
+也可以[养小猫咪](https://github.com/vernesong/OpenClash)：
 
 <center>
     <img src="http://icing.fun/img/post/2025/10/01/8.png" alt="Order" title="Order" width="50%" />
