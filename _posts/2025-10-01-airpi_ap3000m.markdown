@@ -9,6 +9,10 @@ published: true
 
 不过，USB 设备总觉得有点别扭，尤其是我这种经常出差的人，插拔总觉得不方便。
 
+<center>
+    <img src="http://icing.fun/img/post/2025/10/01/1.jpg" alt="Order" title="Order" width="50%" />
+</center>
+
 很久之前在淘宝上看到一款手搓的 5G CPE，叫 Airpi AP3000M，用的 MT7981  芯片，AX3000 的 Wi-Fi，1GB RAM + 16GB ROM，不带 5G 模块才 439。
 
 <center>
@@ -76,3 +80,9 @@ AT+CFUN=1,1 # 重启模组
 <center>
     <img src="http://icing.fun/img/post/2025/10/01/8.png" alt="Order" title="Order" width="50%" />
 </center>
+
+最后用[中科大测速](https://test.ustc.edu.cn/)：
+
+<center>
+    <img src="http://icing.fun/img/post/2025/10/01/9.png" alt="Order" title="Order" width="50%" />
+</center>   
